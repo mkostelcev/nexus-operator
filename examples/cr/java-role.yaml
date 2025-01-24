@@ -1,0 +1,12 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Role
+metadata:
+  name: example-java-role
+  namespace: platform
+spec:
+  description: Роль предоставляет доступ к артефактам Java 1.0.x в репозитории Maven
+  name: Доступ к Java 1.0.x
+  privileges:
+    - example-java-1.0.x-access
+    - nx-metrics-all
+  roleId: java-artifacts-access-role

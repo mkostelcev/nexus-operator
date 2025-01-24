@@ -1,0 +1,16 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Privilege
+metadata:
+  name: example-java-privilege
+  namespace: platform
+spec:
+  name: example-java-1.0.x-access
+  description: Доступ к артефактам Java 1.0.x
+  repositoryContentSelector:
+    actions:
+      - READ
+      - BROWSE
+    contentSelector: example-selector
+    format: maven2
+    repository: example-maven-hosted-repo
+  type: repository-content-selector

@@ -1,0 +1,9 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  labels:
+    app.kubernetes.io/name: nexus-operator-kostoed
+    app.kubernetes.io/managed-by: kustomize
+  name: repository-sample
+spec:
+  # TODO(user): Add fields here

@@ -1,0 +1,21 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-maven-group-repo
+  namespace: platform
+spec:
+  name: example-maven-group-repo
+  group:
+    memberNames:
+      - example-maven-proxy-repo
+      - example-maven-hosted-repo
+  maven:
+    contentDisposition: INLINE
+    layoutPolicy: PERMISSIVE
+    versionPolicy: MIXED
+  online: true
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: ALLOW
+  type: maven-group

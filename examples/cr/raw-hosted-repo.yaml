@@ -1,0 +1,15 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-raw-hosted-repo
+  namespace: platform
+spec:
+  name: example-raw-hosted-repo
+  type: raw-hosted
+  online: true
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: ALLOW
+  raw:
+    contentDisposition: ATTACHMENT

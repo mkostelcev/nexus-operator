@@ -1,0 +1,29 @@
+# .chglog/config.yml
+style: plain # Упрощенный стиль без группировки по типам
+template: |
+  # История изменений
+
+  {{ range .Versions }}
+  ## {{ .Tag.Name }}
+
+  {{ .Subject | indent 2 }}
+
+  {{ end }}
+options:
+  commits:
+    filters:
+      # Включаем все коммиты, кроме технических (если нужно)
+      Type: 
+        - feat
+        - fix
+        - docs
+        - perf
+        - refactor
+  header:
+    pattern: "^([\\w\\d]+):\\s(.+)"
+    patternMaps:
+      - Type
+      - Subject
+  notes:
+    keywords:
+      - BREAKING CHANGE

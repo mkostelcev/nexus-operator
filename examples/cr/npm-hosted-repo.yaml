@@ -1,0 +1,15 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-npm-hosted-repo
+  namespace: platform
+spec:
+  name: example-npm-hosted-repo
+  npm:
+    removeNonCataloged: true
+  online: true
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: allow
+  type: npm-hosted

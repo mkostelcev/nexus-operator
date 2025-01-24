@@ -1,0 +1,9 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Privilege
+metadata:
+  labels:
+    app.kubernetes.io/name: nexus-operator-kostoed
+    app.kubernetes.io/managed-by: kustomize
+  name: privilege-sample
+spec:
+  # TODO(user): Add fields here

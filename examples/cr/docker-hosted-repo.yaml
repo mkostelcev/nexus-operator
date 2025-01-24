@@ -1,0 +1,16 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-docker-hosted-repo
+  namespace: platform
+spec:
+  docker:
+    forceBasicAuth: true
+    v1Enabled: false
+  name: example-docker-hosted-repo
+  online: true
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: ALLOW_ONCE
+  type: docker-hosted

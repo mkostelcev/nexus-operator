@@ -1,0 +1,31 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-docker-proxy-repo
+  namespace: platform
+spec:
+  docker:
+    httpsPort: 5447
+    subdomain: example-docker-proxy
+    v1Enabled: false
+  httpClient:
+    authentication:
+      password: my-docker-password
+      type: username
+      username: my-docker-username
+    autoBlock: true
+    blocked: false
+  name: example-docker-proxy-repo
+  negativeCache:
+    enabled: true
+    timeToLive: 300
+  online: true
+  proxy:
+    contentMaxAge: 1200
+    metadataMaxAge: 1210
+    remoteUrl: https://registry-1.docker.io/123
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: ALLOW
+  type: docker-proxy

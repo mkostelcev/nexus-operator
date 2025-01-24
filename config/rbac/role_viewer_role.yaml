@@ -1,0 +1,23 @@
+# permissions for end users to view roles.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: nexus-operator-kostoed
+    app.kubernetes.io/managed-by: kustomize
+  name: role-viewer-role
+rules:
+- apiGroups:
+  - nexus.operators.dev.kostoed.ru
+  resources:
+  - roles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - nexus.operators.dev.kostoed.ru
+  resources:
+  - roles/status
+  verbs:
+  - get

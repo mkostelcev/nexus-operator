@@ -1,0 +1,26 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-maven-proxy-repo
+  namespace: platform
+spec:
+  httpClient:
+    autoBlock: true
+    blocked: false
+  maven:
+    layoutPolicy: STRICT
+    versionPolicy: MIXED
+  name: example-maven-proxy-repo
+  negativeCache:
+    enabled: false
+    timeToLive: 300
+  online: true
+  proxy:
+    contentMaxAge: 1440
+    metadataMaxAge: 1440
+    remoteUrl: https://repo.maven.apache.org/maven2/
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: allow
+  type: maven-proxy

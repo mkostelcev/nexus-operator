@@ -1,0 +1,162 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*' # Триггер на теги, начинающиеся с 'v'
+
+permissions:  # Добавляем права
+  contents: write  # Для создания релизов
+  packages: write  # Для работы с артефактами
+
+env:
+  GO_VERSION: '1.23.3'
+  BINARY_NAME: 'nexus-operator'
+  VERSION: ${{ github.ref_name }}
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # build-binaries:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       goos: [linux, darwin]
+  #       goarch: [amd64, arm64]
+  #     fail-fast: false
+  #   steps:
+  #     - name: Get runner architecture
+  #       run: |
+  #         echo "OS: ${{ runner.os }}"
+  #         echo "Architecture: $(uname -m)"
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v5
+  #       with:
+  #         go-version: ${{ env.GO_VERSION }}
+  #         cache: true
+  #     - name: Build binary
+  #       env:
+  #         GOOS: ${{ matrix.goos }}
+  #         GOARCH: ${{ matrix.goarch }}
+  #       run: |
+  #         OUTPUT="${{ env.BINARY_NAME }}_${{ env.VERSION }}_${{ matrix.goos }}_${{ matrix.goarch }}"
+  #         go build -v -trimpath \
+  #           -ldflags="-s -w -X main.Version=${{ env.VERSION }}" \
+  #           -o ${OUTPUT} main.go
+  #     - name: Upload artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: ${{ env.BINARY_NAME }}-${{ matrix.goos }}-${{ matrix.goarch }}
+  #         path: ${{ env.BINARY_NAME }}_${{ env.VERSION }}_${{ matrix.goos }}_${{ matrix.goarch }}
+  #         retention-days: 1
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        platforms: ${{ matrix.platform }}
+
+    - name: Build and Extract
+      uses: docker/build-push-action@v5
+      id: build
+      with:
+        context: .
+        platforms: ${{ matrix.platform }}
+        outputs: type=local,dest=./artifacts
+        build-args: |
+          VERSION=${{ env.VERSION }}
+          TARGETPLATFORM=${{ matrix.platform }}
+          BINARY_NAME=${{ env.BINARY_NAME }}
+
+    - name: Prepare Artifacts
+      run: |
+        # Rename and organize binaries
+        PLATFORM=$(echo "${{ matrix.platform }}" | tr '/' '-')
+        mv ./artifacts/${{ matrix.platform }}/bin/* ./artifacts/
+        mv ./artifacts/${{ env.BINARY_NAME }} ./artifacts/${{ env.BINARY_NAME }}_${{ env.VERSION }}_${PLATFORM}
+        rm -rf ./artifacts/${{ matrix.platform }}
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bin-${{ matrix.platform }}
+        path: ./artifacts/${{ env.BINARY_NAME }}_${{ env.VERSION }}_*
+  
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts
+        pattern: bin-*
+        merge-multiple: true
+    # - name: Prepare Artifacts
+    #   run: |
+    #     # Flatten directory structure
+    #     find ./artifacts -mindepth 2 -type f -exec mv -t ./artifacts {} +
+    #     # Clean empty directories
+    #     find ./artifacts -type d -empty -delete
+    #     # List final artifacts
+    #     ls -lh ./artifacts
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ env.VERSION }}
+        name: ${{ env.VERSION }}
+        body: |
+          ## Nexus Operator ${{ env.VERSION }}
+
+          ### Supported Architectures
+            - Linux (amd64, arm64)
+            - macOS (amd64, arm64)
+          
+          ### Docker Images
+            - `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}`
+            - `${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest`
+        files: |
+          artifacts/${{ env.BINARY_NAME }}_*
+  # changelog:
+  #   needs: create-release
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v5
+  #       with:
+  #         go-version: ${{ env.GO_VERSION }}
+  #     - name: Generate CHANGELOG
+  #       run: |
+  #         # Устанавливаем git-chglog
+  #         go install github.com/git-chglog/git-chglog/cmd/git-chglog@latest
+          
+  #         # Генерируем CHANGELOG между последним тегом и текущим
+  #         git-chglog --output CHANGELOG.md --next-tag ${{ github.ref_name }}
+          
+  #         # Для формата заменяем стандартные заголовки
+  #         sed -i 's/^###/##/g' CHANGELOG.md
+  #         sed -i '/^<a name=/d' CHANGELOG.md
+  #     - name: Commit CHANGELOG.md
+  #       run: |
+  #         git config --global user.name "GitHub Actions"
+  #         git config --global user.email "actions@github.com"
+  #         git add CHANGELOG.md
+  #         git commit -m "docs: Updated CHANGELOG for ${{ github.ref_name }}"
+  #         git push origin HEAD:master
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  

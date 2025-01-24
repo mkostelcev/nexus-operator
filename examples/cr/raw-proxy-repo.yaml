@@ -1,0 +1,29 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-raw-proxy-repo
+  namespace: platform
+spec:
+  httpClient:
+    authentication:
+      password: password
+      type: username
+      username: username
+    autoBlock: true
+    blocked: false
+  name: example-raw-proxy-repo
+  negativeCache:
+    enabled: false
+    timeToLive: 300
+  online: true
+  proxy:
+    contentMaxAge: 1440
+    metadataMaxAge: 1440
+    remoteUrl: https://github.com
+  raw:
+    contentDisposition: ATTACHMENT
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: ALLOW
+  type: raw-proxy

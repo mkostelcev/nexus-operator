@@ -1,0 +1,27 @@
+# permissions for end users to edit privileges.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: nexus-operator-kostoed
+    app.kubernetes.io/managed-by: kustomize
+  name: privilege-editor-role
+rules:
+- apiGroups:
+  - nexus.operators.dev.kostoed.ru
+  resources:
+  - privileges
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nexus.operators.dev.kostoed.ru
+  resources:
+  - privileges/status
+  verbs:
+  - get

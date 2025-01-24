@@ -1,0 +1,7 @@
+## Append samples of your project ##
+resources:
+- nexus_v1alpha1_role.yaml
+- nexus_v1alpha1_repository.yaml
+- nexus_v1alpha1_privilege.yaml
+- nexus_v1alpha1_contentselector.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

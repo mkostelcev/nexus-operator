@@ -1,0 +1,9 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: ContentSelector
+metadata:
+  name: example-selector
+  namespace: platform
+spec:
+  name: example-selector
+  description: Selects all Java artifacts with version 1.0.x
+  expression: format == "maven2" && path =^ "/org/example/.*/1.0.[0-9]+/.*"

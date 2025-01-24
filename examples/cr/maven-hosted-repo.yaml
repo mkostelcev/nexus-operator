@@ -1,0 +1,16 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-maven-hosted-repo
+  namespace: platform
+spec:
+  maven:
+    layoutPolicy: STRICT
+    versionPolicy: RELEASE
+  name: example-maven-hosted-repo
+  online: true
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: deny
+  type: maven-hosted

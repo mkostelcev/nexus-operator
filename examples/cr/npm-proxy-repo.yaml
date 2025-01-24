@@ -1,0 +1,27 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-npm-proxy-repo
+  namespace: platform
+spec:
+  httpClient:
+    authentication:
+      password: password
+      type: username
+      username: user
+    autoBlock: true
+    blocked: false
+  name: example-npm-proxy-repo
+  negativeCache:
+    enabled: true
+    timeToLive: 300
+  online: true
+  proxy:
+    contentMaxAge: 1440
+    metadataMaxAge: 1440
+    remoteUrl: https://registry.npmjs.org/
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: allow
+  type: npm-proxy

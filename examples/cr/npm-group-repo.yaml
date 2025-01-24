@@ -1,0 +1,19 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-npm-group-repo
+  namespace: platform
+spec:
+  name: example-npm-group-repo
+  npm:
+    removeNonCataloged: true
+  online: true
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: ALLOW
+  group:
+    memberNames:
+      - example-npm-proxy-repo
+      - example-npm-hosted-repo
+  type: npm-group

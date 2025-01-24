@@ -1,0 +1,19 @@
+apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+kind: Repository
+metadata:
+  name: example-raw-group
+  namespace: platform
+spec:
+  name: example-raw-group
+  type: raw-group
+  online: true
+  storage:
+    blobStoreName: default
+    strictContentTypeValidation: true
+    writePolicy: ALLOW
+  group:
+    memberNames:
+      - example-raw-proxy-repo
+      - example-raw-hosted-repo
+  raw:
+    contentDisposition: INLINE 
