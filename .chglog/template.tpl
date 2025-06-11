@@ -1,8 +1,10 @@
 # История изменений
 
 {{ range .Versions }}
-## {{ .Tag.Name }}
+## {{ .Tag.Name }} {{ if .Tag.Date }}({{ datetime "2006-01-02" .Tag.Date }}){{ end }}
 
-{{ .Subject | indent 2 }}
+{{- range .Commits }}
+  - {{ .Header }}
+{{- end }}
 
 {{ end }}
