@@ -71,7 +71,6 @@ jobs:
 
       - name: Generate CHANGELOG
         run: |
-          go install github.com/skywinder/git-chglog/cmd/git-chglog@latest
           git-chglog -o CHANGELOG.md
 
       - name: Build binaries (linux/amd64, linux/arm64, darwin/amd64, darwin/arm64, windows/amd64)
