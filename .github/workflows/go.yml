@@ -90,11 +90,20 @@ jobs:
             rm "$BIN_NAME"
           done
 
+      - name: Build release notes
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          awk -v ver="$TAG" '/^## Версия / {if (block) exit; block=($0 ~ "## Версия "ver)} block' changelog.md > _release_changelog.md
+          git-chglog --template .chglog/template.tpl -o _release_commits.md
+          cat _release_changelog.md > _release_full.md
+          echo "" >> _release_full.md
+          cat _release_commits.md >> _release_full.md
+
       - name: Create GitHub Release and upload binaries
         uses: softprops/action-gh-release@v1
         with:
           files: |
             *.tar.gz
-          body_path: CHANGELOG.md
+          body_path: _release_full.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
