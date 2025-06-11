@@ -1,10 +1,11 @@
 # История изменений
 
 {{ range .Versions }}
-## {{ .Tag.Name }} {{ if .Tag.Date }}({{ datetime "2006-01-02" .Tag.Date }}){{ end }}
+## {{ .Tag.Name }} ({{ datetime "2006-01-02" .Tag.Date }})
 
 {{- range .Commits }}
-  - {{ .Header }}
+- [{{ .Header }}]({{ $.RepositoryURL }}/commit/{{ .Hash }})
 {{- end }}
 
 {{ end }}
+
