@@ -1,14 +1,6 @@
 # .chglog/config.yml
 style: plain # Упрощенный стиль без группировки по типам
-template: |
-  # История изменений
-
-  {{ range .Versions }}
-  ## {{ .Tag.Name }}
-
-  {{ .Subject | indent 2 }}
-
-  {{ end }}
+template: template.tpl
 options:
   commits:
     filters:
