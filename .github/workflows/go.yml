@@ -82,7 +82,7 @@ jobs:
             GOARCH=${PLATFORM#*/}
             BIN_NAME="nexus-operator-${GOOS}-${GOARCH}"
             [ "$GOOS" = "windows" ] && BIN_NAME="$BIN_NAME.exe"
-            env GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -o "$BIN_NAME" ./cmd/nexus-operator
+            env GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -o "$BIN_NAME" .
             ARCHIVE="${BIN_NAME%.*}.tar.gz"
             tar -czf "$ARCHIVE" "$BIN_NAME"
             rm "$BIN_NAME"
