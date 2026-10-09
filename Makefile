@@ -28,8 +28,8 @@ BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 # This variable is used to construct full image tags for bundle and catalog images.
 #
 # For example, running 'make bundle-build bundle-push catalog-build catalog-push' will build and push both
-# operators.dev.kostoed.ru/nexus-operator-kostoed-bundle:$VERSION and operators.dev.kostoed.ru/nexus-operator-kostoed-catalog:$VERSION.
-IMAGE_TAG_BASE ?= operators.dev.kostoed.ru/nexus-operator-kostoed
+# platform.alpha.integrations.kostoed.ru/nexus-operator-deepseek-bundle:$VERSION and platform.alpha.integrations.kostoed.ru/nexus-operator-deepseek-catalog:$VERSION.
+IMAGE_TAG_BASE ?= platform.alpha.integrations.kostoed.ru/nexus-operator-deepseek
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
@@ -127,11 +127,17 @@ lint: golangci-lint ## Run golangci-lint linter & yamllint
 lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 	$(GOLANGCI_LINT) run --fix
 
+## Go ldflags for version injection (same variables as CI/CD)
+LDFLAGS := -X main.Version=$(VERSION) \
+           -X 'main.GoVersion=$(shell go version | cut -d " " -f 3)' \
+           -X 'main.Compiler=$(shell go env CC)' \
+           -X 'main.Platform=$(shell go env GOOS)/$(shell go env GOARCH)'
+
 ##@ Build
 
 .PHONY: build
 build: manifests generate fmt vet ## Build manager binary.
-	go build -o bin/manager main.go
+	go build -ldflags "$(LDFLAGS)" -o bin/manager main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.

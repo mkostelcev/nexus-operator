@@ -1,29 +1,37 @@
-apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+apiVersion: nexus.kostoed.ru/v1alpha1
 kind: Repository
 metadata:
   name: example-raw-proxy-repo
   namespace: platform
 spec:
-  httpClient:
-    authentication:
-      password: password
-      type: username
-      username: username
-    autoBlock: true
-    blocked: false
   name: example-raw-proxy-repo
-  negativeCache:
-    enabled: false
-    timeToLive: 300
+  type: raw-proxy
   online: true
-  proxy:
-    contentMaxAge: 1440
-    metadataMaxAge: 1440
-    remoteUrl: https://github.com
-  raw:
-    contentDisposition: ATTACHMENT
   storage:
     blobStoreName: default
     strictContentTypeValidation: true
     writePolicy: ALLOW
-  type: raw-proxy
+  raw:
+    contentDisposition: ATTACHMENT
+  proxy:
+    remoteUrl: https://github.com
+    contentMaxAge: 1440
+    metadataMaxAge: 1440
+  httpClient:
+    autoBlock: true
+    blocked: false
+    # Вариант 1: credentials из K8s Secret (рекомендуется).
+    # Secret должен содержать JSON: {"username":"...","password":"..."}
+    authentication:
+      type: username
+      secretRef:
+        name: nexus-proxy-auth
+        key: example-raw-proxy-repo
+    # Вариант 2: credentials inline (не рекомендуется — пароль хранится в CR).
+    # authentication:
+    #   type: username
+    #   username: username
+    #   password: <secret>
+  negativeCache:
+    enabled: false
+    timeToLive: 300

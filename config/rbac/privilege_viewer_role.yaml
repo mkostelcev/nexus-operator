@@ -3,12 +3,12 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app.kubernetes.io/name: nexus-operator-kostoed
+    app.kubernetes.io/name: nexus-operator-deepseek
     app.kubernetes.io/managed-by: kustomize
   name: privilege-viewer-role
 rules:
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - privileges
   verbs:
@@ -16,7 +16,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - privileges/status
   verbs:

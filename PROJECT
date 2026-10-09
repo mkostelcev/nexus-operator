@@ -2,20 +2,20 @@
 # This file is used to track the info used to scaffold your project
 # and allow the plugins properly work.
 # More info: https://book.kubebuilder.io/reference/project-config.html
-domain: operators.dev.kostoed.ru
+domain: platform.alpha.integrations.kostoed.ru
 layout:
 - go.kubebuilder.io/v4
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
-projectName: nexus-operator-kostoed
+projectName: nexus-operator-deepseek
 repo: github.com/mkostelcev/nexus-operator
 resources:
 - api:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: operators.dev.kostoed.ru
+  domain: platform.alpha.integrations.kostoed.ru
   group: nexus
   kind: Role
   path: github.com/mkostelcev/nexus-operator/api/v1alpha1
@@ -24,7 +24,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: operators.dev.kostoed.ru
+  domain: platform.alpha.integrations.kostoed.ru
   group: nexus
   kind: Repository
   path: github.com/mkostelcev/nexus-operator/api/v1alpha1
@@ -33,7 +33,7 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: operators.dev.kostoed.ru
+  domain: platform.alpha.integrations.kostoed.ru
   group: nexus
   kind: Privilege
   path: github.com/mkostelcev/nexus-operator/api/v1alpha1
@@ -42,9 +42,18 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: operators.dev.kostoed.ru
+  domain: platform.alpha.integrations.kostoed.ru
   group: nexus
   kind: ContentSelector
+  path: github.com/mkostelcev/nexus-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: platform.alpha.integrations.kostoed.ru
+  group: nexus
+  kind: NexusTeamAccess
   path: github.com/mkostelcev/nexus-operator/api/v1alpha1
   version: v1alpha1
 version: "3"

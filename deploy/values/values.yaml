@@ -1,0 +1,45 @@
+serviceAccount:
+  create: true
+  name: nexus-operator
+
+rbac:
+  clusterRole:
+    create: true
+    bindWithClusterRoleBinding: true
+    rules:
+      - apiGroups: [""]
+        resources: ["namespaces", "secrets", "configmaps", "events"]
+        verbs: ["get", "list", "watch", "create", "update", "delete"]
+      - apiGroups: ["apiextensions.k8s.io"]
+        resources: ["customresourcedefinitions"]
+        verbs: ["get", "list", "watch", "create", "update", "delete"]
+      - apiGroups: [ "coordination.k8s.io" ]
+        resources: [ "leases" ]
+        verbs: [ "get", "list", "watch", "create", "update", "delete", "patch" ]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["repositories", "repositories/status"]
+        verbs: ["get", "list", "watch", "create", "update", "delete"]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["contentselectors", "contentselectors/status"]
+        verbs: ["get", "list", "watch", "create", "update", "delete"]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["roles", "roles/status"]
+        verbs: ["get", "list", "watch", "create", "update", "delete"]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["privileges", "privileges/status"]
+        verbs: ["get", "list", "watch", "create", "update", "delete"]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["routingrules", "routingrules/status"]
+        verbs: ["get", "list", "watch", "create", "update", "delete"]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["nexusteamaccesses", "nexusteamaccesses/status", "nexusteamaccesses/finalizers"]
+        verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["nexusteambindings", "nexusteambindings/status", "nexusteambindings/finalizers"]
+        verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["nexususers", "nexususers/status", "nexususers/finalizers"]
+        verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+      - apiGroups: ["nexus.kostoed.ru"]
+        resources: ["nexusconfigurations", "nexusconfigurations/status", "nexusconfigurations/finalizers"]
+        verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]

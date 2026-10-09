@@ -5,10 +5,45 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/mkostelcev/nexus-operator/api/v1alpha1"
 	"github.com/sirupsen/logrus"
 )
+
+// ListRoles возвращает список всех ролей из Nexus.
+func (c *Client) ListRoles(ctx context.Context) ([]Role, error) {
+	c.Logger.Info("Получение списка всех ролей")
+	resp, err := c.Resty.R().
+		SetContext(ctx).
+		SetResult(&[]Role{}).
+		Get(RoleAPIPath)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+	if resp.StatusCode() != 200 {
+		return nil, NewUnexpectedResponseError(resp.StatusCode(), resp.String())
+	}
+	return *resp.Result().(*[]Role), nil
+}
+
+// BuildRoleSpecFromAPI строит RoleSpec из данных Nexus API.
+func BuildRoleSpecFromAPI(role Role) v1alpha1.RoleSpec {
+	spec := v1alpha1.RoleSpec{
+		RoleID:      role.ID,
+		Name:        role.Name,
+		Description: role.Description,
+		Privileges:  role.Privileges,
+		Roles:       role.Roles,
+	}
+	if spec.Privileges == nil {
+		spec.Privileges = []string{}
+	}
+	if spec.Roles == nil {
+		spec.Roles = []string{}
+	}
+	return spec
+}
 
 // GetRole получает информацию о роли
 func (c *Client) GetRole(ctx context.Context, roleID string) (*Role, error) {
@@ -72,7 +107,7 @@ func (c *Client) CreateRole(ctx context.Context, role Role) error {
 		return fmt.Errorf("ошибка выполнения запроса: %w", err)
 	}
 
-	if resp.StatusCode() != 201 {
+	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusCreated {
 		return NewUnexpectedResponseError(resp.StatusCode(), resp.String())
 	}
 

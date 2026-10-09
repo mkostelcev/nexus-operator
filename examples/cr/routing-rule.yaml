@@ -1,0 +1,24 @@
+apiVersion: nexus.kostoed.ru/v1alpha1
+kind: RoutingRule
+metadata:
+  name: example-block-rule
+  namespace: platform
+spec:
+  name: example-block-rule
+  description: Блокировка уязвимых версий пакетов
+  mode: BLOCK
+  matchers:
+    - "(?i)(.*)\\/((node-ipc-10.1.2)(.*))"
+    - "(?i)(.*)\\/((es5-ext-0.10.64)(.*))"
+---
+apiVersion: nexus.kostoed.ru/v1alpha1
+kind: RoutingRule
+metadata:
+  name: example-allow-rule
+  namespace: platform
+spec:
+  name: example-allow-rule
+  description: Разрешить только alpine-пакеты
+  mode: ALLOW
+  matchers:
+    - "^/v[0-9]+/alpine/.*"

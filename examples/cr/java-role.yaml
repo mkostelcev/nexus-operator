@@ -1,4 +1,4 @@
-apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+apiVersion: nexus.kostoed.ru/v1alpha1
 kind: Role
 metadata:
   name: example-java-role
@@ -10,3 +10,8 @@ spec:
     - example-java-1.0.x-access
     - nx-metrics-all
   roleId: java-artifacts-access-role
+  # Вложенные роли (опционально)
+  # roles:
+  #   - nx-anonymous
+  # Синхронизация в Keycloak (опционально, см. role-with-keycloak-sync.yaml)
+  # keycloakSync: true

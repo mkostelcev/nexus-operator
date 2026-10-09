@@ -4,4 +4,5 @@ resources:
 - nexus_v1alpha1_repository.yaml
 - nexus_v1alpha1_privilege.yaml
 - nexus_v1alpha1_contentselector.yaml
+- nexus_v1alpha1_nexusteamaccess.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

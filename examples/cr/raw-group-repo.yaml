@@ -1,4 +1,4 @@
-apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+apiVersion: nexus.kostoed.ru/v1alpha1
 kind: Repository
 metadata:
   name: example-raw-group

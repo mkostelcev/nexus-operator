@@ -28,3 +28,5 @@ resources:
 - repository_viewer_role.yaml
 - role_editor_role.yaml
 - role_viewer_role.yaml
+- nexusteamaccess_editor_role.yaml
+- nexusteamaccess_viewer_role.yaml

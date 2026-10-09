@@ -1,0 +1,16 @@
+apiVersion: nexus.kostoed.ru/v1alpha1
+kind: NexusTeamAccess
+metadata:
+  labels:
+    app.kubernetes.io/name: nexus-operator-deepseek
+    app.kubernetes.io/managed-by: kustomize
+  name: nexusteamaccess-sample
+spec:
+  teamPath: myteam/subteam
+  repositories:
+    - format: docker
+      names:
+        - registry
+  accessLevels:
+    - ro
+    - rw

@@ -1,0 +1,17 @@
+apiVersion: nexus.kostoed.ru/v1alpha1
+kind: NexusUser
+metadata:
+  name: example-user
+  namespace: platform
+spec:
+  userId: example-service-account
+  firstName: Example
+  lastName: Service
+  emailAddress: example@kostoed.ru
+  status: active
+  roles:
+    - nx-anonymous
+  credentials:
+    secretKeyRef:
+      name: nexus-user-passwords
+      key: example-service-account

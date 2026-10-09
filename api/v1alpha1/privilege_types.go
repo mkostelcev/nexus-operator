@@ -10,7 +10,7 @@ type PrivilegeSpec struct {
 	Name string `json:"name"`
 
 	// Тип привилегии (обязательное поле)
-	// +kubebuilder:validation:Enum=wildcard;application;repository-view;repository-admin;repository-content-selector;script
+	// +kubebuilder:validation:Enum=wildcard;application;repository-view;repository-admin;repository-content-selector
 	// +kubebuilder:validation:Required
 	Type string `json:"type"`
 
@@ -31,9 +31,6 @@ type PrivilegeSpec struct {
 
 	// Конфигурация для типа repository-content-selector
 	RepositoryContentSelector *RepositoryContentSelectorConfig `json:"repositoryContentSelector,omitempty"`
-
-	// Конфигурация для типа script
-	Script *ScriptConfig `json:"script,omitempty"`
 }
 
 // WildcardConfig определяет параметры для wildcard-привилегии
@@ -50,26 +47,36 @@ type ApplicationConfig struct {
 	Domain string `json:"domain"`
 
 	// Разрешенные действия
-	// +kubebuilder:validation:Enum=READ;BROWSE;ADD;EDIT;DELETE;RUN;ASSOCIATE;DISASSOCIATE;ALL
+	// +kubebuilder:validation:Enum=READ;BROWSE;ADD;EDIT;DELETE;RUN;START;STOP;ASSOCIATE;DISASSOCIATE;ALL
 	Actions []string `json:"actions"`
 }
 
 // RepositoryViewConfig определяет параметры для просмотра репозитория
 type RepositoryViewConfig struct {
+	// Формат репозитория (maven2, npm, docker и т.д., "*" для всех)
+	Format string `json:"format"`
+
 	// Имя репозитория
 	// +kubebuilder:validation:Required
 	Repository string `json:"repository"`
 
 	// Разрешенные действия
-	// +kubebuilder:validation:Enum=READ;BROWSE;ADD;EDIT;DELETE;RUN;ASSOCIATE;DISASSOCIATE;ALL
+	// +kubebuilder:validation:Enum=READ;BROWSE;ADD;EDIT;DELETE;RUN;START;STOP;ASSOCIATE;DISASSOCIATE;ALL
 	Actions []string `json:"actions"`
 }
 
 // RepositoryAdminConfig определяет параметры администрирования репозитория
 type RepositoryAdminConfig struct {
+	// Формат репозитория (maven2, npm, docker и т.д., "*" для всех)
+	Format string `json:"format"`
+
 	// Имя репозитория
 	// +kubebuilder:validation:Required
 	Repository string `json:"repository"`
+
+	// Разрешенные действия
+	// +kubebuilder:validation:Enum=READ;BROWSE;ADD;EDIT;DELETE;RUN;START;STOP;ASSOCIATE;DISASSOCIATE;ALL
+	Actions []string `json:"actions"`
 }
 
 // RepositoryContentSelectorConfig определяет параметры селектора контента
@@ -89,25 +96,27 @@ type RepositoryContentSelectorConfig struct {
 	// Разрешенные действия
 	// +kubebuilder:validation:Type=array
 	// +kubebuilder:validation:MinItems=1
-	// +kubebuilder:validation:Items={"type":"string","enum":["READ","BROWSE","ADD","EDIT","DELETE","RUN","ASSOCIATE","DISASSOCIATE","ALL"]}
+	// +kubebuilder:validation:Items={"type":"string","enum":["READ","BROWSE","ADD","EDIT","DELETE","RUN","START","STOP","ASSOCIATE","DISASSOCIATE","ALL"]}
 	Actions []string `json:"actions"`
-}
-
-// ScriptConfig определяет параметры для скриптовых привилегий
-type ScriptConfig struct {
-	// Имя скрипта
-	// +kubebuilder:validation:Required
-	ScriptName string `json:"scriptName"`
 }
 
 // PrivilegeStatus определяет текущее состояние привилегии
 type PrivilegeStatus struct {
 	// Условия состояния
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
+
+	// Время последней успешной синхронизации.
+	// +optional
+	LastSyncTime *metav1.Time `json:"lastSyncTime,omitempty"`
+	// Количество последовательных ошибок синхронизации.
+	// +optional
+	SyncErrors int32 `json:"syncErrors,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // Privilege - кастомный ресурс для управления привилегиями Nexus
 type Privilege struct {

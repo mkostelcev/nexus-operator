@@ -5,7 +5,24 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - external-secrets.io
+  resources:
+  - externalsecrets
+  verbs:
+  - create
+  - get
+  - list
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
   resources:
   - contentselectors
   verbs:
@@ -17,13 +34,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - contentselectors/finalizers
   verbs:
   - update
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - contentselectors/status
   verbs:
@@ -31,7 +48,111 @@ rules:
   - patch
   - update
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
+  resources:
+  - nexusconfigurations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexusconfigurations/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexusconfigurations/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexusteamaccesses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexusteamaccesses/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexusteamaccesses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexusteambindings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexusteambindings/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexusteambindings/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexususers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexususers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - nexususers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
   resources:
   - privileges
   verbs:
@@ -43,13 +164,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - privileges/finalizers
   verbs:
   - update
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - privileges/status
   verbs:
@@ -57,7 +178,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - repositories
   verbs:
@@ -69,13 +190,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - repositories/finalizers
   verbs:
   - update
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - repositories/status
   verbs:
@@ -83,7 +204,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - roles
   verbs:
@@ -95,15 +216,41 @@ rules:
   - update
   - watch
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - roles/finalizers
   verbs:
   - update
 - apiGroups:
-  - nexus.operators.dev.kostoed.ru
+  - nexus.kostoed.ru
   resources:
   - roles/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - routingrules
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - routingrules/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - nexus.kostoed.ru
+  resources:
+  - routingrules/status
   verbs:
   - get
   - patch

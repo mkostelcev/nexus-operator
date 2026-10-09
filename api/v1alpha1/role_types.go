@@ -8,7 +8,7 @@ import (
 type RoleSpec struct {
 	// Уникальный идентификатор роли (должен соответствовать формату Nexus)
 	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9\-_]+$`
+	// +kubebuilder:validation:Pattern=`^[a-zA-Z0-9 \-_:.*]+$`
 	RoleID string `json:"roleId"`
 
 	// Человекочитаемое имя роли
@@ -27,6 +27,10 @@ type RoleSpec struct {
 	// Список дочерних ролей
 	// +kubebuilder:validation:MinItems=0
 	Roles []string `json:"roles,omitempty"`
+
+	// Синхронизация роли в Keycloak (создание client role)
+	// +optional
+	KeycloakSync bool `json:"keycloakSync,omitempty"`
 
 	// Конфигурация внешних источников ролей (опционально)
 	Source *RoleSource `json:"source,omitempty"`
@@ -52,6 +56,13 @@ type RoleStatus struct {
 
 	// Сообщение о текущем статусе
 	Message string `json:"message,omitempty"`
+
+	// Время последней успешной синхронизации.
+	// +optional
+	LastSyncTime *metav1.Time `json:"lastSyncTime,omitempty"`
+	// Количество последовательных ошибок синхронизации.
+	// +optional
+	SyncErrors int32 `json:"syncErrors,omitempty"`
 }
 
 // +kubebuilder:object:root=true

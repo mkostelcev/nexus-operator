@@ -13,7 +13,7 @@ type RepositorySpec struct {
 	Name string `json:"name"`
 
 	// Type - тип репозитория (например, maven-hosted, npm-hosted и т.д.) (неизменяемое).
-	// +kubebuilder:validation:Enum=maven-hosted;maven-proxy;maven-group;npm-hosted;npm-proxy;npm-group;docker-hosted;docker-group;docker-proxy;raw-hosted;raw-group;raw-proxy
+	// +kubebuilder:validation:Enum=maven-hosted;maven-proxy;maven-group;npm-hosted;npm-proxy;npm-group;docker-hosted;docker-group;docker-proxy;raw-hosted;raw-group;raw-proxy;helm-hosted;helm-proxy;pypi-hosted;pypi-proxy;pypi-group;nuget-hosted;nuget-proxy;nuget-group;apt-hosted;apt-proxy;cargo-group;cargo-hosted;cargo-proxy;cocoapods-proxy;composer-proxy;conan-group;conan-hosted;conan-proxy;conda-proxy;gitlfs-hosted;go-group;go-proxy;huggingface-proxy;p2-proxy;r-group;r-hosted;r-proxy;rubygems-group;rubygems-hosted;rubygems-proxy;yum-group;yum-hosted;yum-proxy
 	// +kubebuilder:validation:Immutable
 	Type string `json:"type"`
 
@@ -59,6 +59,38 @@ type RepositorySpec struct {
 	// NegativeCache содержит настройки отрицательного кэша.
 	// +optional
 	NegativeCache *NegativeCacheConfig `json:"negativeCache,omitempty"`
+
+	// Apt - настройки для APT (опционально).
+	// +optional
+	Apt *AptConfig `json:"apt,omitempty"`
+
+	// AptSigning - настройки подписи для APT hosted (опционально).
+	// +optional
+	AptSigning *AptSigningConfig `json:"aptSigning,omitempty"`
+
+	// Yum - настройки для YUM hosted (опционально).
+	// +optional
+	Yum *YumConfig `json:"yum,omitempty"`
+
+	// YumSigning - настройки подписи для YUM (опционально).
+	// +optional
+	YumSigning *YumSigningConfig `json:"yumSigning,omitempty"`
+
+	// NugetProxy - настройки для NuGet proxy (опционально).
+	// +optional
+	NugetProxy *NugetProxyConfig `json:"nugetProxy,omitempty"`
+
+	// Cargo - настройки для Cargo (опционально).
+	// +optional
+	Cargo *CargoConfig `json:"cargo,omitempty"`
+
+	// ConanProxy - настройки для Conan proxy (опционально).
+	// +optional
+	ConanProxy *ConanProxyConfig `json:"conanProxy,omitempty"`
+
+	// RoutingRuleName - имя Routing Rule, привязанного к репозиторию (опционально).
+	// +optional
+	RoutingRuleName string `json:"routingRuleName,omitempty"`
 }
 
 // RepositoryStatus описывает состояние репозитория.
@@ -67,10 +99,19 @@ type RepositoryStatus struct {
 	// +optional
 	Conditions         []metav1.Condition `json:"conditions,omitempty"`
 	ObservedGeneration int64              `json:"observedGeneration,omitempty"`
+	// Время последней успешной синхронизации.
+	// +optional
+	LastSyncTime *metav1.Time `json:"lastSyncTime,omitempty"`
+	// Количество последовательных ошибок синхронизации.
+	// +optional
+	SyncErrors int32 `json:"syncErrors,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Type",type="string",JSONPath=".spec.type"
+// +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // Repository - это схема для API репозиториев.
 type Repository struct {
@@ -105,9 +146,44 @@ type HttpClientConfig struct {
 	// +kubebuilder:default=true
 	AutoBlock bool `json:"autoBlock"`
 
+	// Connection содержит настройки HTTP-соединения.
+	// +optional
+	Connection *ConnectionConfig `json:"connection,omitempty"`
+
 	// Authentication содержит настройки аутентификации.
 	// +optional
 	Authentication *AuthConfig `json:"authentication,omitempty"`
+}
+
+// ConnectionConfig описывает настройки HTTP-соединения для proxy-репозиториев.
+type ConnectionConfig struct {
+	// Retries — количество повторных попыток при таймауте (0-10).
+	// +optional
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=10
+	Retries *int `json:"retries,omitempty"`
+
+	// Timeout — таймаут ожидания активности в секундах (1-3600).
+	// +optional
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=3600
+	Timeout *int `json:"timeout,omitempty"`
+
+	// UserAgentSuffix — суффикс для заголовка User-Agent.
+	// +optional
+	UserAgentSuffix string `json:"userAgentSuffix,omitempty"`
+
+	// EnableCircularRedirects разрешает редиректы на тот же URL.
+	// +optional
+	EnableCircularRedirects bool `json:"enableCircularRedirects,omitempty"`
+
+	// EnableCookies разрешает сохранение и использование cookies.
+	// +optional
+	EnableCookies bool `json:"enableCookies,omitempty"`
+
+	// UseTrustStore использует сертификаты из Nexus truststore.
+	// +optional
+	UseTrustStore bool `json:"useTrustStore,omitempty"`
 }
 
 // NegativeCacheConfig описывает настройки отрицательного кэша.
@@ -208,18 +284,27 @@ type ProxyConfig struct {
 
 // AuthConfig описывает параметры HTTP-аутентификации.
 type AuthConfig struct {
-	// Type - тип авторизации (Username/BasicAuth или NTLM)
-	// +kubebuilder:validation:Enum=username;ntlm
+	// Type - тип авторизации (Username/BasicAuth, NTLM или bearerToken)
+	// +kubebuilder:validation:Enum=username;ntlm;bearerToken
 	// +kubebuilder:default=username
 	Type string `json:"type,omitempty"`
 
 	// Username - имя пользователя для базовой аутентификации.
-	// +kubebuilder:validation:Required
-	Username string `json:"username"`
+	// +optional
+	Username string `json:"username,omitempty"`
 
-	// Password - пароль для базовой аутентификации.
-	// +kubebuilder:validation:Required
-	Password string `json:"password"`
+	// Password - пароль для базовой аутентификации (inline, не рекомендуется).
+	// +optional
+	Password string `json:"password,omitempty"`
+
+	// SecretRef - ссылка на ключ в Secret с JSON-объектом {"username":"...","password":"..."}.
+	// Имеет приоритет над inline-полями Username и Password.
+	// +optional
+	SecretRef *SecretKeySelector `json:"secretRef,omitempty"`
+
+	// BearerToken - токен для Bearer-аутентификации.
+	// +optional
+	BearerToken string `json:"bearerToken,omitempty"`
 }
 
 // GroupConfig определяет настройки группы для репозитория.
@@ -233,4 +318,77 @@ type GroupConfig struct {
 type CleanupPolicy struct {
 	// PolicyNames содержит список политик очистки, применяемых к репозиторию.
 	PolicyNames []string `json:"policyNames,omitempty"`
+}
+
+// AptConfig определяет настройки, специфичные для APT.
+type AptConfig struct {
+	// Distribution — дистрибутив для APT.
+	// +optional
+	Distribution string `json:"distribution,omitempty"`
+
+	// Flat указывает, является ли репозиторий плоским (только для proxy).
+	// +optional
+	Flat bool `json:"flat"`
+}
+
+// AptSigningConfig определяет настройки подписи для APT hosted.
+type AptSigningConfig struct {
+	// Keypair — PGP-ключ для подписи (armored private key).
+	// +optional
+	Keypair string `json:"keypair,omitempty"`
+
+	// Passphrase — пароль для PGP-ключа.
+	// +optional
+	Passphrase string `json:"passphrase,omitempty"`
+}
+
+// YumConfig определяет настройки, специфичные для YUM hosted.
+type YumConfig struct {
+	// RepodataDepth — глубина каталога для repodata.
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=5
+	RepodataDepth int `json:"repodataDepth"`
+
+	// DeployPolicy — политика деплоя RPM-пакетов.
+	// +kubebuilder:validation:Enum=PERMISSIVE;STRICT
+	// +optional
+	DeployPolicy string `json:"deployPolicy,omitempty"`
+}
+
+// YumSigningConfig определяет настройки подписи для YUM.
+type YumSigningConfig struct {
+	// Keypair — PGP-ключ для подписи (armored private key).
+	// +optional
+	Keypair string `json:"keypair,omitempty"`
+
+	// Passphrase — пароль для PGP-ключа.
+	// +optional
+	Passphrase string `json:"passphrase,omitempty"`
+}
+
+// NugetProxyConfig определяет настройки, специфичные для NuGet proxy.
+type NugetProxyConfig struct {
+	// QueryCacheItemMaxAge — время кэширования результатов запросов (в секундах).
+	// +optional
+	QueryCacheItemMaxAge int `json:"queryCacheItemMaxAge,omitempty"`
+
+	// NugetVersion — версия протокола NuGet.
+	// +kubebuilder:validation:Enum=V2;V3
+	// +optional
+	NugetVersion string `json:"nugetVersion,omitempty"`
+}
+
+// CargoConfig определяет настройки, специфичные для Cargo.
+type CargoConfig struct {
+	// RequireAuthentication указывает, требует ли репозиторий аутентификации.
+	// +optional
+	RequireAuthentication bool `json:"requireAuthentication,omitempty"`
+}
+
+// ConanProxyConfig определяет настройки, специфичные для Conan proxy.
+type ConanProxyConfig struct {
+	// ConanVersion — версия протокола Conan.
+	// +kubebuilder:validation:Enum=V1;V2
+	// +optional
+	ConanVersion string `json:"conanVersion,omitempty"`
 }

@@ -1,0 +1,534 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  name: repositories.nexus.kostoed.ru
+spec:
+  group: nexus.kostoed.ru
+  names:
+    kind: Repository
+    listKind: RepositoryList
+    plural: repositories
+    singular: repository
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.type
+      name: Type
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: Ready
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Repository - это схема для API репозиториев.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: RepositorySpec определяет желаемое состояние репозитория
+              Nexus.
+            properties:
+              apt:
+                description: Apt - настройки для APT (опционально).
+                properties:
+                  distribution:
+                    description: Distribution — дистрибутив для APT.
+                    type: string
+                  flat:
+                    description: Flat указывает, является ли репозиторий плоским (только
+                      для proxy).
+                    type: boolean
+                type: object
+              aptSigning:
+                description: AptSigning - настройки подписи для APT hosted (опционально).
+                properties:
+                  keypair:
+                    description: Keypair — PGP-ключ для подписи (armored private key).
+                    type: string
+                  passphrase:
+                    description: Passphrase — пароль для PGP-ключа.
+                    type: string
+                type: object
+              cargo:
+                description: Cargo - настройки для Cargo (опционально).
+                properties:
+                  requireAuthentication:
+                    description: RequireAuthentication указывает, требует ли репозиторий
+                      аутентификации.
+                    type: boolean
+                type: object
+              cleanup:
+                description: Cleanup - настройки политики очистки (опционально).
+                properties:
+                  policyNames:
+                    description: PolicyNames содержит список политик очистки, применяемых
+                      к репозиторию.
+                    items:
+                      type: string
+                    type: array
+                type: object
+              conanProxy:
+                description: ConanProxy - настройки для Conan proxy (опционально).
+                properties:
+                  conanVersion:
+                    description: ConanVersion — версия протокола Conan.
+                    enum:
+                    - V1
+                    - V2
+                    type: string
+                type: object
+              docker:
+                description: Docker - настройки для Docker (опционально).
+                properties:
+                  forceBasicAuth:
+                    description: ForceBasicAuth определяет, будет ли применяться базовая
+                      аутентификация.
+                    type: boolean
+                  httpPort:
+                    description: HttpPort указывает HTTP порт для Docker репозитория.
+                    type: integer
+                  httpsPort:
+                    description: HttpsPort указывает HTTPS порт для Docker репозитория.
+                    type: integer
+                  subdomain:
+                    description: Subdomain указывает поддомен для репозитория.
+                    type: string
+                  v1Enabled:
+                    default: false
+                    description: V1Enabled указывает, включен ли API Docker V1.
+                    type: boolean
+                required:
+                - v1Enabled
+                type: object
+              group:
+                description: Group - настройки для групп (опционально).
+                properties:
+                  memberNames:
+                    description: MemberNames содержит список участников группового
+                      репозитория.
+                    items:
+                      type: string
+                    type: array
+                required:
+                - memberNames
+                type: object
+              httpClient:
+                description: HttpClient содержит настройки HTTP-клиента.
+                properties:
+                  authentication:
+                    description: Authentication содержит настройки аутентификации.
+                    properties:
+                      bearerToken:
+                        description: BearerToken - токен для Bearer-аутентификации.
+                        type: string
+                      password:
+                        description: Password - пароль для базовой аутентификации
+                          (inline, не рекомендуется).
+                        type: string
+                      secretRef:
+                        description: |-
+                          SecretRef - ссылка на ключ в Secret с JSON-объектом {"username":"...","password":"..."}.
+                          Имеет приоритет над inline-полями Username и Password.
+                        properties:
+                          key:
+                            description: Ключ в Secret
+                            type: string
+                          name:
+                            description: Имя Secret
+                            type: string
+                        required:
+                        - key
+                        - name
+                        type: object
+                      type:
+                        default: username
+                        description: Type - тип авторизации (Username/BasicAuth, NTLM
+                          или bearerToken)
+                        enum:
+                        - username
+                        - ntlm
+                        - bearerToken
+                        type: string
+                      username:
+                        description: Username - имя пользователя для базовой аутентификации.
+                        type: string
+                    type: object
+                  autoBlock:
+                    default: true
+                    description: AutoBlock включает автоматическую блокировку при
+                      недоступности репозитория.
+                    type: boolean
+                  blocked:
+                    default: false
+                    description: Blocked указывает, блокируется ли доступ к удалённому
+                      репозиторию.
+                    type: boolean
+                  connection:
+                    description: Connection содержит настройки HTTP-соединения.
+                    properties:
+                      enableCircularRedirects:
+                        description: EnableCircularRedirects разрешает редиректы на
+                          тот же URL.
+                        type: boolean
+                      enableCookies:
+                        description: EnableCookies разрешает сохранение и использование
+                          cookies.
+                        type: boolean
+                      retries:
+                        description: Retries — количество повторных попыток при таймауте
+                          (0-10).
+                        maximum: 10
+                        minimum: 0
+                        type: integer
+                      timeout:
+                        description: Timeout — таймаут ожидания активности в секундах
+                          (1-3600).
+                        maximum: 3600
+                        minimum: 1
+                        type: integer
+                      useTrustStore:
+                        description: UseTrustStore использует сертификаты из Nexus
+                          truststore.
+                        type: boolean
+                      userAgentSuffix:
+                        description: UserAgentSuffix — суффикс для заголовка User-Agent.
+                        type: string
+                    type: object
+                required:
+                - autoBlock
+                - blocked
+                type: object
+              maven:
+                description: Maven - настройки для Maven (опционально).
+                properties:
+                  contentDisposition:
+                    default: INLINE
+                    description: ContentDisposition для совместимости с групповыми
+                      репозиториями
+                    enum:
+                    - INLINE
+                    - ATTACHMENT
+                    type: string
+                  layoutPolicy:
+                    description: LayoutPolicy определяет политику макета (например,
+                      STRICT, PERMISSIVE).
+                    enum:
+                    - STRICT
+                    - PERMISSIVE
+                    type: string
+                  versionPolicy:
+                    description: VersionPolicy определяет политику версий (например,
+                      RELEASE, SNAPSHOT, MIXED).
+                    enum:
+                    - RELEASE
+                    - SNAPSHOT
+                    - MIXED
+                    type: string
+                required:
+                - layoutPolicy
+                - versionPolicy
+                type: object
+              name:
+                description: Name - уникальное имя репозитория (неизменяемое).
+                minLength: 1
+                type: string
+              negativeCache:
+                description: NegativeCache содержит настройки отрицательного кэша.
+                properties:
+                  enabled:
+                    default: true
+                    description: Enabled включает отрицательное кэширование.
+                    type: boolean
+                  timeToLive:
+                    default: 300
+                    description: TimeToLive задаёт время жизни отрицательного кэша
+                      в секундах.
+                    type: integer
+                required:
+                - enabled
+                type: object
+              npm:
+                description: NPM - настройки для NPM (опционально).
+                properties:
+                  removeNonCataloged:
+                    description: RemoveNonCataloged определяет, нужно ли удалять некаталогизированные
+                      компоненты.
+                    type: boolean
+                  removeQuarantined:
+                    description: RemoveQuarantined определяет, нужно ли удалять компоненты
+                      из карантина.
+                    type: boolean
+                type: object
+              nugetProxy:
+                description: NugetProxy - настройки для NuGet proxy (опционально).
+                properties:
+                  nugetVersion:
+                    description: NugetVersion — версия протокола NuGet.
+                    enum:
+                    - V2
+                    - V3
+                    type: string
+                  queryCacheItemMaxAge:
+                    description: QueryCacheItemMaxAge — время кэширования результатов
+                      запросов (в секундах).
+                    type: integer
+                type: object
+              online:
+                default: true
+                description: Online указывает, доступен ли репозиторий.
+                type: boolean
+              proxy:
+                description: Proxy - настройки для прокси (опционально).
+                properties:
+                  contentMaxAge:
+                    description: ContentMaxAge определяет максимальный возраст кэшированного
+                      контента.
+                    type: integer
+                  metadataMaxAge:
+                    description: MetadataMaxAge определяет максимальный возраст кэшированных
+                      метаданных.
+                    type: integer
+                  remoteUrl:
+                    description: RemoteUrl указывает удалённый URL для прокси-репозитория.
+                    pattern: ^(http|https)://.+
+                    type: string
+                required:
+                - remoteUrl
+                type: object
+              raw:
+                description: Raw - настройки для Raw (опционально).
+                properties:
+                  contentDisposition:
+                    default: INLINE
+                    description: ContentDisposition определяет поведение при скачивании
+                      файлов.
+                    enum:
+                    - INLINE
+                    - ATTACHMENT
+                    type: string
+                type: object
+              routingRuleName:
+                description: RoutingRuleName - имя Routing Rule, привязанного к репозиторию
+                  (опционально).
+                type: string
+              storage:
+                description: Storage содержит детали конфигурации хранения.
+                properties:
+                  blobStoreName:
+                    description: BlobStoreName указывает имя хранилища блобов(неизменяемое).
+                    minLength: 1
+                    type: string
+                  strictContentTypeValidation:
+                    default: true
+                    description: StrictContentTypeValidation указывает, будет ли применяться
+                      строгая проверка типа содержимого.
+                    type: boolean
+                  writePolicy:
+                    default: ALLOW
+                    description: WritePolicy определяет политику записи для репозитория.
+                    enum:
+                    - ALLOW_ONCE
+                    - ALLOW
+                    - DENY
+                    type: string
+                required:
+                - blobStoreName
+                - strictContentTypeValidation
+                - writePolicy
+                type: object
+              type:
+                description: Type - тип репозитория (например, maven-hosted, npm-hosted
+                  и т.д.) (неизменяемое).
+                enum:
+                - maven-hosted
+                - maven-proxy
+                - maven-group
+                - npm-hosted
+                - npm-proxy
+                - npm-group
+                - docker-hosted
+                - docker-group
+                - docker-proxy
+                - raw-hosted
+                - raw-group
+                - raw-proxy
+                - helm-hosted
+                - helm-proxy
+                - pypi-hosted
+                - pypi-proxy
+                - pypi-group
+                - nuget-hosted
+                - nuget-proxy
+                - nuget-group
+                - apt-hosted
+                - apt-proxy
+                - cargo-group
+                - cargo-hosted
+                - cargo-proxy
+                - cocoapods-proxy
+                - composer-proxy
+                - conan-group
+                - conan-hosted
+                - conan-proxy
+                - conda-proxy
+                - gitlfs-hosted
+                - go-group
+                - go-proxy
+                - huggingface-proxy
+                - p2-proxy
+                - r-group
+                - r-hosted
+                - r-proxy
+                - rubygems-group
+                - rubygems-hosted
+                - rubygems-proxy
+                - yum-group
+                - yum-hosted
+                - yum-proxy
+                type: string
+              yum:
+                description: Yum - настройки для YUM hosted (опционально).
+                properties:
+                  deployPolicy:
+                    description: DeployPolicy — политика деплоя RPM-пакетов.
+                    enum:
+                    - PERMISSIVE
+                    - STRICT
+                    type: string
+                  repodataDepth:
+                    description: RepodataDepth — глубина каталога для repodata.
+                    maximum: 5
+                    minimum: 0
+                    type: integer
+                required:
+                - repodataDepth
+                type: object
+              yumSigning:
+                description: YumSigning - настройки подписи для YUM (опционально).
+                properties:
+                  keypair:
+                    description: Keypair — PGP-ключ для подписи (armored private key).
+                    type: string
+                  passphrase:
+                    description: Passphrase — пароль для PGP-ключа.
+                    type: string
+                type: object
+            required:
+            - name
+            - online
+            - storage
+            - type
+            type: object
+          status:
+            description: RepositoryStatus описывает состояние репозитория.
+            properties:
+              conditions:
+                description: Conditions содержит список условий, описывающих состояние
+                  ресурса.
+                items:
+                  description: "Condition contains details for one aspect of the current
+                    state of this API Resource.\n---\nThis struct is intended for
+                    direct use as an array at the field path .status.conditions.  For
+                    example,\n\n\n\ttype FooStatus struct{\n\t    // Represents the
+                    observations of a foo's current state.\n\t    // Known .status.conditions.type
+                    are: \"Available\", \"Progressing\", and \"Degraded\"\n\t    //
+                    +patchMergeKey=type\n\t    // +patchStrategy=merge\n\t    // +listType=map\n\t
+                    \   // +listMapKey=type\n\t    Conditions []metav1.Condition `json:\"conditions,omitempty\"
+                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`\n\n\n\t
+                    \   // other fields\n\t}"
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: |-
+                        type of condition in CamelCase or in foo.example.com/CamelCase.
+                        ---
+                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
+                        useful (see .node.status.conditions), the ability to deconflict is important.
+                        The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              lastSyncTime:
+                description: Время последней успешной синхронизации.
+                format: date-time
+                type: string
+              observedGeneration:
+                format: int64
+                type: integer
+              syncErrors:
+                description: Количество последовательных ошибок синхронизации.
+                format: int32
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

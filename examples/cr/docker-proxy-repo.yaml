@@ -1,31 +1,39 @@
-apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+apiVersion: nexus.kostoed.ru/v1alpha1
 kind: Repository
 metadata:
   name: example-docker-proxy-repo
   namespace: platform
 spec:
-  docker:
-    httpsPort: 5447
-    subdomain: example-docker-proxy
-    v1Enabled: false
-  httpClient:
-    authentication:
-      password: my-docker-password
-      type: username
-      username: my-docker-username
-    autoBlock: true
-    blocked: false
   name: example-docker-proxy-repo
-  negativeCache:
-    enabled: true
-    timeToLive: 300
+  type: docker-proxy
   online: true
-  proxy:
-    contentMaxAge: 1200
-    metadataMaxAge: 1210
-    remoteUrl: https://registry-1.docker.io/123
   storage:
     blobStoreName: default
     strictContentTypeValidation: true
     writePolicy: ALLOW
-  type: docker-proxy
+  docker:
+    httpsPort: 5447
+    subdomain: example-docker-proxy
+    v1Enabled: false
+  proxy:
+    remoteUrl: https://registry-1.docker.io/123
+    contentMaxAge: 1200
+    metadataMaxAge: 1210
+  httpClient:
+    autoBlock: true
+    blocked: false
+    # Вариант 1: credentials из K8s Secret (рекомендуется).
+    # Secret должен содержать JSON: {"username":"...","password":"..."}
+    authentication:
+      type: username
+      secretRef:
+        name: nexus-proxy-auth
+        key: example-docker-proxy-repo
+    # Вариант 2: credentials inline (не рекомендуется — пароль хранится в CR).
+    # authentication:
+    #   type: username
+    #   username: my-docker-username
+    #   password: <secret>
+  negativeCache:
+    enabled: true
+    timeToLive: 300

@@ -1,0 +1,25 @@
+apiVersion: nexus.kostoed.ru/v1alpha1
+kind: NexusConfiguration
+metadata:
+  name: nexus-config
+  namespace: platform
+spec:
+  httpProxy:
+    httpProxy:
+      enabled: true
+      host: "10.7.200.8"
+      port: "3129"
+    httpsProxy:
+      enabled: true
+      host: "10.7.200.8"
+      port: "3129"
+    nonProxyHosts:
+      - "*.kostoed.pro"
+      - "*.kostoed.ru"
+      - "*.kostoed.ru"
+      - "10.*"
+  securityRealms:
+    active:
+      - DockerToken
+      - NexusAuthenticatingRealm
+      - org.github.flytreeleft.nexus3.keycloak.plugin.KeycloakAuthenticatingRealm

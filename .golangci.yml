@@ -1,7 +1,6 @@
 run:
   timeout: 5m
   allow-parallel-runners: true
-  modules-download-mode: readonly
 
 issues:
   # don't skip warning about doc comments
@@ -20,11 +19,9 @@ issues:
 linters:
   disable-all: true
   enable:
-    - copyloopvar
     - dupl
     - errcheck
-    # WARN The linter 'exportloopref' is deprecated (since v1.60.2) due to: Since Go1.22 (loopvar) this linter is no longer relevant. Replaced by copyloopvar.
-    # - exportloopref
+    - exportloopref
     - goconst
     - gocyclo
     - gofmt
@@ -41,9 +38,3 @@ linters:
     - unconvert
     - unparam
     - unused
-
-linters-settings:
-  gocyclo:
-    min-complexity: 25
-  lll:
-    line-length: 120

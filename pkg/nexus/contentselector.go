@@ -6,8 +6,34 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/mkostelcev/nexus-operator/api/v1alpha1"
 	"github.com/sirupsen/logrus"
 )
+
+// ListContentSelectors возвращает список всех Content Selector из Nexus.
+func (c *Client) ListContentSelectors(ctx context.Context) ([]ContentSelectorResponse, error) {
+	c.Logger.Info("Получение списка всех Content Selectors")
+	resp, err := c.Resty.R().
+		SetContext(ctx).
+		SetResult(&[]ContentSelectorResponse{}).
+		Get("/service/rest/v1/security/content-selectors")
+	if err != nil {
+		return nil, fmt.Errorf("ошибка выполнения запроса: %w", err)
+	}
+	if resp.StatusCode() != 200 {
+		return nil, NewUnexpectedResponseError(resp.StatusCode(), resp.String())
+	}
+	return *resp.Result().(*[]ContentSelectorResponse), nil
+}
+
+// BuildContentSelectorSpecFromAPI строит ContentSelectorSpec из данных Nexus API.
+func BuildContentSelectorSpecFromAPI(cs ContentSelectorResponse) v1alpha1.ContentSelectorSpec {
+	return v1alpha1.ContentSelectorSpec{
+		Name:        cs.Name,
+		Description: cs.Description,
+		Expression:  cs.Expression,
+	}
+}
 
 // GetContentSelector получает конфигурацию существующего Content Selector
 func (c *Client) GetContentSelector(ctx context.Context, name string) (*ContentSelectorResponse, error) {

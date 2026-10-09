@@ -1,0 +1,15 @@
+apiVersion: nexus.kostoed.ru/v1alpha1
+kind: Role
+metadata:
+  name: example-keycloak-role
+  namespace: platform
+spec:
+  description: Роль с синхронизацией в Keycloak
+  name: Maven manual Read
+  privileges:
+    - nx-repository-view-maven2-maven-manual-browse
+    - nx-repository-view-maven2-maven-manual-read
+  roleId: nexus-maven-manual-ro
+  # Синхронизация роли в Keycloak (создаёт клиентскую роль в nexus-client).
+  # Требует настройки Keycloak в конфигурации оператора.
+  keycloakSync: true

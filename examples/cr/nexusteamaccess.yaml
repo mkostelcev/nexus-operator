@@ -1,0 +1,20 @@
+apiVersion: nexus.kostoed.ru/v1alpha1
+kind: NexusTeamAccess
+metadata:
+  name: alpha-team-access
+spec:
+  teamPath: kostoed/integrations/alpha
+  repositories:
+    - format: docker
+      names:
+        - registry
+    - format: maven2
+      names:
+        - releases
+        - snapshots
+    - format: raw
+      names:
+        - artifacts
+  accessLevels:
+    - ro
+    - rw

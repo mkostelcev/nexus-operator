@@ -1,26 +1,42 @@
-apiVersion: nexus.operators.dev.kostoed.ru/v1alpha1
+apiVersion: nexus.kostoed.ru/v1alpha1
 kind: Repository
 metadata:
   name: example-maven-proxy-repo
   namespace: platform
 spec:
-  httpClient:
-    autoBlock: true
-    blocked: false
-  maven:
-    layoutPolicy: STRICT
-    versionPolicy: MIXED
   name: example-maven-proxy-repo
-  negativeCache:
-    enabled: false
-    timeToLive: 300
+  type: maven-proxy
   online: true
-  proxy:
-    contentMaxAge: 1440
-    metadataMaxAge: 1440
-    remoteUrl: https://repo.maven.apache.org/maven2/
   storage:
     blobStoreName: default
     strictContentTypeValidation: true
-    writePolicy: allow
-  type: maven-proxy
+    writePolicy: ALLOW
+  maven:
+    layoutPolicy: STRICT
+    versionPolicy: MIXED
+  proxy:
+    remoteUrl: https://repo.maven.apache.org/maven2/
+    contentMaxAge: 1440
+    metadataMaxAge: 1440
+  httpClient:
+    autoBlock: true
+    blocked: false
+    connection:
+      timeout: 120
+      retries: 3
+    # Вариант 1: credentials из K8s Secret (рекомендуется).
+    # Secret должен содержать JSON: {"username":"...","password":"..."}
+    authentication:
+      type: username
+      secretRef:
+        name: nexus-proxy-auth
+        key: example-maven-proxy-repo
+    # Вариант 2: credentials inline (не рекомендуется — пароль хранится в CR).
+    # authentication:
+    #   type: username
+    #   username: deploy-user
+    #   password: <secret>
+  # routingRuleName: example-block-rule
+  negativeCache:
+    enabled: false
+    timeToLive: 300

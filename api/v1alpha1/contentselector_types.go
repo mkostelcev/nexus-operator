@@ -40,10 +40,19 @@ type ContentSelectorStatus struct {
 	// Conditions содержит список условий, описывающих состояние ресурса.
 	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
+
+	// Время последней успешной синхронизации.
+	// +optional
+	LastSyncTime *metav1.Time `json:"lastSyncTime,omitempty"`
+	// Количество последовательных ошибок синхронизации.
+	// +optional
+	SyncErrors int32 `json:"syncErrors,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Ready",type="string",JSONPath=".status.conditions[?(@.type=='Ready')].status"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // ContentSelector — это CRD для управления Content Selector в Nexus.
 type ContentSelector struct {
